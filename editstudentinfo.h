@@ -15,6 +15,9 @@ public:
     explicit editstudentinfo(QWidget *parent = nullptr);
     ~editstudentinfo();
 
+private slots:
+    void on_pushButton_cancel_clicked();
+
 private:
     Ui::editstudentinfo *ui;
 };

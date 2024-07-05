@@ -41,6 +41,7 @@ public:
      */
     virtual bool deletStudentInfo(int Id)=0;
 
+
 };
 
 #endif // STUDENTINFO_H

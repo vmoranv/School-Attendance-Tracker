@@ -16,13 +16,13 @@ csqlite::csqlite()
                  "Name VARCHAR(20) NOT NULL,"
                  "sex VARCHAR(2),"
                  "age INTEGER,"
-                 "classname VARCHAR(20),"
-                 "coursedate VARCHAR(20),"
+                 "classname VARCHAR(12),"
+                 "coursedate VARCHAR(12),"
                  "coursenum INTEGER,"
-                 "coursename VARCHAR(20),"
-                 "coursetype VARCHAR(20),"
+                 "coursename VARCHAR(12),"
+                 "coursetype VARCHAR(3),"
                  "credit REAL,"
-                 "courselauchtime VARCHAR(20)"
+                 "courselauchtime VARCHAR(12)"
                  ");");
     if(!query.exec(sql))
     {
@@ -74,20 +74,90 @@ bool csqlite::selectStudentInfo(QList<cstudentinfo> &studentinfolist)
     return true;
 }
 
-bool csqlite::addStudentInfo(cstudentinfo studentinfos)
+bool csqlite::addStudentInfo(cstudentinfo studentInfo)
 {
+    if (!m_db.open()) {
+        QMessageBox::critical(0, "Error", "Failed to open database!");
+        return false;
+    }
 
+    QSqlQuery query;
+    query.prepare("INSERT INTO Members (Id, Name, sex, age, classname, coursedate, coursenum, coursename, coursetype, credit, courselauchtime) "
+                  "VALUES (:id, :name, :sex, :age, :classname, :coursedate, :coursenum, :coursename, :coursetype, :credit, :courselauchtime);");
+
+    query.bindValue(":id", studentInfo.getId());
+    query.bindValue(":name", studentInfo.getName());
+    query.bindValue(":sex", studentInfo.getSex());
+    query.bindValue(":age", studentInfo.getAge());
+    query.bindValue(":classname", studentInfo.getClassname());
+    query.bindValue(":coursedate", studentInfo.getCoursedate());
+    query.bindValue(":coursenum", studentInfo.getCoursenum());
+    query.bindValue(":coursename", studentInfo.getCoursename());
+    query.bindValue(":coursetype", studentInfo.getCoursetype());
+    query.bindValue(":credit", studentInfo.getCredit());
+    query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
+
+    if (!query.exec()) {
+        qDebug() << "Error adding student info:" << query.lastQuery();
+        m_db.close();
+        return false;
+    }
+
+    m_db.close();
     return true;
 }
 
-bool csqlite::editStudentInfo(cstudentinfo studentinfos)
+bool csqlite::editStudentInfo(cstudentinfo studentInfo)
 {
+    if (!m_db.open()) {
+        QMessageBox::critical(0, "Error", "Failed to open database!");
+        return false;
+    }
 
-    return  true;
+    QSqlQuery query;
+    query.prepare("UPDATE Members SET Name = :name, sex = :sex, age = :age, classname = :classname, "
+                  "coursedate = :coursedate, coursenum = :coursenum, coursename = :coursename, "
+                  "coursetype = :coursetype, credit = :credit, courselauchtime = :courselauchtime WHERE Id = :id");
+
+    query.bindValue(":id", studentInfo.getId());
+    query.bindValue(":name", studentInfo.getName());
+    query.bindValue(":sex", studentInfo.getSex());
+    query.bindValue(":age", studentInfo.getAge());
+    query.bindValue(":classname", studentInfo.getClassname());
+    query.bindValue(":coursedate", studentInfo.getCoursedate());
+    query.bindValue(":coursenum", studentInfo.getCoursenum());
+    query.bindValue(":coursename", studentInfo.getCoursename());
+    query.bindValue(":coursetype", studentInfo.getCoursetype());
+    query.bindValue(":credit", studentInfo.getCredit());
+    query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
+
+    if (!query.exec()) {
+        qDebug() << "Error editing student info:" << query.lastQuery();
+        m_db.close();
+        return false;
+    }
+
+    m_db.close();
+    return true;
 }
 
 bool csqlite::deletStudentInfo(int Id)
 {
+    if (!m_db.open()) {
+        QMessageBox::critical(0, "Error", "Failed to open database!");
+        return false;
+    }
 
+    QSqlQuery query;
+    query.prepare("DELETE FROM Members WHERE Id = :id");
+    query.bindValue(":id", Id);
+
+    if (!query.exec()) {
+        qDebug() << "Error deleting student info:" << query.lastQuery();
+        m_db.close();
+        return false;
+    }
+
+    m_db.close();
     return true;
 }

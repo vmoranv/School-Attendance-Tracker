@@ -5,6 +5,13 @@
 #include <QStandardItemModel>
 
 #include "csqlite.h"
+#include "addstudentinfo.h"
+#include "editstudentinfo.h"
+#include "analyzestudentinfo.h"
+
+const int CONST_COLUMN_SIZE = 11;
+
+const int CONST_COL_NAME = 12;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,6 +24,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    bool appendTomodel(cstudentinfo &studentinfo);
 
 private slots:
     void on_pushButton_add_clicked();
@@ -50,6 +58,17 @@ private slots:
     void on_action_4_triggered();
 
     void on_action_T_triggered();
+
+
+public slots:
+
+    bool slot_addStuInfo(cstudentinfo &stuInfo);
+
+    bool slot_updateStuInfo(cstudentinfo &stuInfo);
+
+private:
+
+    void initUI();
 
 private:
     Ui::MainWindow *ui;

@@ -12,3 +12,8 @@ editstudentinfo::~editstudentinfo()
 {
     delete ui;
 }
+
+void editstudentinfo::on_pushButton_cancel_clicked()
+{
+    close();
+}

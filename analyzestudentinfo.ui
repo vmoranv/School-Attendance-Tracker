@@ -19,237 +19,139 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="5,95">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="85,10,5">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetFixedSize</enum>
-       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="30,70">
          <item>
-          <widget class="QCheckBox" name="checkBox_id_11">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <widget class="QComboBox" name="comboBox">
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
            </property>
            <property name="font">
             <font>
              <pointsize>16</pointsize>
             </font>
            </property>
-           <property name="text">
-            <string>学号</string>
-           </property>
+           <item>
+            <property name="text">
+             <string>学号</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>姓名</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>年龄</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>班级</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_id_8">
+          <widget class="QLineEdit" name="lineEdit">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="font">
             <font>
              <pointsize>16</pointsize>
             </font>
            </property>
-           <property name="text">
-            <string>姓名</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_7">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>性别</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_4">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>年龄</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_10">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>班级</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_5">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>缺课日期</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_9">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>第几节课</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_3">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>课程名称</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_6">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>缺课类型</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>学分</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_id_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>开课时间</string>
+           <property name="autoFillBackground">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>16</pointsize>
-          </font>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="60,70">
+         <item>
+          <widget class="QComboBox" name="comboBox_2">
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>16</pointsize>
+            </font>
+           </property>
+           <item>
+            <property name="text">
+             <string>缺课日期</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>第几节课</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>课程名称</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>学生姓名</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>缺课类型</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>16</pointsize>
+            </font>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QPushButton" name="pushButton">
