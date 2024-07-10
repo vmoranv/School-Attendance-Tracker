@@ -26,9 +26,15 @@
         <layout class="QHBoxLayout" name="horizontalLayout" stretch="30,70">
          <item>
           <widget class="QComboBox" name="comboBox">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>70</width>
+             <width>100</width>
              <height>16777215</height>
             </size>
            </property>
@@ -89,9 +95,15 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="60,70">
          <item>
           <widget class="QComboBox" name="comboBox_2">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>160</width>
              <height>16777215</height>
             </size>
            </property>
@@ -100,6 +112,11 @@
              <pointsize>16</pointsize>
             </font>
            </property>
+           <item>
+            <property name="text">
+             <string>考勤ID</string>
+            </property>
+           </item>
            <item>
             <property name="text">
              <string>缺课日期</string>
@@ -113,11 +130,6 @@
            <item>
             <property name="text">
              <string>课程名称</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>学生姓名</string>
             </property>
            </item>
            <item>

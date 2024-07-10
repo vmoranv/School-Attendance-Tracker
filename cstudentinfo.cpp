@@ -1,5 +1,5 @@
 #include "cstudentinfo.h"
-
+#include "qdebug.h"
 cstudentinfo::cstudentinfo()
 {
 
@@ -7,6 +7,7 @@ cstudentinfo::cstudentinfo()
 
 bool cstudentinfo::setData(int id, QString name, QString sex, int age, QString classname, QString coursedate, int coursenum, QString coursename, QString coursetype, double credit, QString courselauchtime)
 {
+    qDebug()<<"setData id"<<id;
     this->Id = id;
     this->Name = name;
     this->sex = sex;
@@ -129,4 +130,16 @@ QString cstudentinfo::getCourselauchtime() const
 void cstudentinfo::setCourselauchtime(const QString &value)
 {
     courselauchtime = value;
+}
+
+void cstudentinfo::addAttendanceInfo(const cattendanceinfo &attendanceInfo) {
+    attendanceInfos.append(attendanceInfo);
+}
+
+QList<cattendanceinfo> cstudentinfo::getAttendanceInfos() const {
+    return attendanceInfos;
+}
+
+void cstudentinfo::setAttendanceInfos(const QList<cattendanceinfo> &attendanceInfos) {
+    this->attendanceInfos = attendanceInfos;
 }

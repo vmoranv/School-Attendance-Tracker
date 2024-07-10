@@ -28,18 +28,18 @@ public:
     virtual bool addStudentInfo(cstudentinfo studentinfos) =0;
 
     /**
-     * @brief editStudentInfo 修改学生信息
+     * @brief updateStudentInfo 修改学生信息
      * @param studentinfos 指定学生信息
      * @return true or false
      */
-    virtual bool editStudentInfo(cstudentinfo studentinfos) =0;
+    virtual bool updateStudentInfo(cstudentinfo studentInfo) =0;
 
     /**
-     * @brief deletStudentInfo 删除学生信息
-     * @param Id 指定学生Id
+     * @brief deleteSpecificAttendanceRecord 删除学生信息
+     * @param studentId 指定学生Id attendanceId 对应Attendance考勤信息
      * @return true or false
      */
-    virtual bool deletStudentInfo(int Id)=0;
+    virtual bool deleteSpecificAttendanceRecord(int attendanceId)=0;
 
 
 };

@@ -1,36 +1,44 @@
 #include "csqlite.h"
 
-csqlite::csqlite()
-{
-    m_db= QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName("./studentInfoDB.db");
-    if (!m_db.open())
-    {
-        QMessageBox::information(0, "Error", "Failed to open database!");
+csqlite::csqlite(const QString& dbName) {
+    m_db = QSqlDatabase::addDatabase("QSQLITE");
+    m_db.setDatabaseName(dbName);
+    if (!m_db.open()) {
+        qWarning() << "Failed to open database:" << dbName;
         return;
     }
 
     QSqlQuery query;
-    QString sql=("CREATE TABLE IF NOT EXISTS Members ("
-                 "Id INTEGER PRIMARY KEY,"
-                 "Name VARCHAR(20) NOT NULL,"
-                 "sex VARCHAR(2),"
-                 "age INTEGER,"
-                 "classname VARCHAR(12),"
-                 "coursedate VARCHAR(12),"
-                 "coursenum INTEGER,"
-                 "coursename VARCHAR(12),"
-                 "coursetype VARCHAR(3),"
-                 "credit REAL,"
-                 "courselauchtime VARCHAR(12)"
-                 ");");
-    if(!query.exec(sql))
-    {
-        QMessageBox::information(0, "Error", "Failed to create default table!");
+    QString sql = ("CREATE TABLE IF NOT EXISTS Members ("
+                   "Id INTEGER PRIMARY KEY, "
+                   "Name VARCHAR(20) NOT NULL,"
+                   "Sex VARCHAR(2),"
+                   "Age INTEGER,"
+                   "Classname VARCHAR(12)"
+                   ");");
+    if (!query.exec(sql)) {
+        qWarning() << "Failed to create default table in database:" << dbName;
         qDebug() << query.lastQuery();
         return;
     }
-    m_db.close();
+
+    QString sqlAttendance = ("CREATE TABLE IF NOT EXISTS Attendance ("
+                             "AttendanceId INTEGER PRIMARY KEY AUTOINCREMENT,"
+                             "StudentId INTEGER,"
+                             "Coursedate VARCHAR(12),"
+                             "Coursenum INTEGER,"
+                             "Coursename VARCHAR(12),"
+                             "Coursetype VARCHAR(3),"
+                             "Credit REAL,"
+                             "Courselauchtime VARCHAR(12),"
+                             "FOREIGN KEY(StudentId) REFERENCES Members(Id) ON DELETE CASCADE"
+                             ");");
+
+    if (!query.exec(sqlAttendance)) {
+        qWarning() << "Failed to create Attendance table in database:" << dbName;
+        qDebug() << query.lastQuery();
+        return;
+    }
 }
 
 csqlite::~csqlite()
@@ -38,58 +46,70 @@ csqlite::~csqlite()
 
 }
 
+// 查询所有学生信息
 bool csqlite::selectStudentInfo(QList<cstudentinfo> &studentinfolist)
 {
-    if(!m_db.open())
-    {
-        QMessageBox::information(0, "Error", "Failed to open database when selectStudentInfo!");
-        return false;
-    }
     QSqlQuery query;
-    QString sql=("SELECT * FROM Members;");
-    if(!query.exec(sql))
-    {
-        QMessageBox::information(0, "Error", "Failed to query!");
-        return false;
-    }
-    while(query.next())
-    {
-        cstudentinfo studentInfoTemp;
-        int id = query.value("Id").toInt();
-        QString name = query.value("Name").toString();
-        QString sex = query.value("sex").toString();
-        int age = query.value("age").toInt();
-        QString classname = query.value("classname").toString();
-        QString coursedate = query.value("coursedate").toString();
-        int coursenum = query.value("coursenum").toInt();
-        QString coursename = query.value("coursename").toString();
-        QString coursetype = query.value("coursetype").toString();
-        double credit = query.value("credit").toDouble();
-        QString courselauchtime = query.value("courselauchtime").toString();
+    query.exec("SELECT A.AttendanceId, M.Id, M.Name, M.Sex, M.Age, M.Classname, A.Coursedate, A.Coursenum, A.Coursename, A.Coursetype, A.Credit, A.Courselauchtime "
+               "FROM Attendance A "
+               "JOIN Members M ON A.StudentId = M.Id "
+               "ORDER BY A.AttendanceId");
 
-        studentInfoTemp.setData(id, name, sex, age, classname, coursedate, coursenum, coursename, coursetype, credit, courselauchtime);
-        studentinfolist.append(studentInfoTemp);
+    while (query.next()) {
+        cstudentinfo info;
+        info.setId(query.value(1).toInt());
+        info.setAttendanceId(query.value(0).toInt());
+        info.setName(query.value(2).toString());
+        info.setSex(query.value(3).toString());
+        info.setAge(query.value(4).toInt());
+        info.setClassname(query.value(5).toString());
+        info.setCoursedate(query.value(6).toString());
+        info.setCoursenum(query.value(7).toInt());
+        info.setCoursename(query.value(8).toString());
+        info.setCoursetype(query.value(9).toString());
+        info.setCredit(query.value(10).toDouble());
+        info.setCourselauchtime(query.value(11).toString());
+
+        studentinfolist.append(info);
     }
-    m_db.close();
+
     return true;
 }
 
+//添加单挑学生信息
 bool csqlite::addStudentInfo(cstudentinfo studentInfo)
 {
+    qDebug() << "Adding student info:" << studentInfo.getId();
+
     if (!m_db.open()) {
         QMessageBox::critical(0, "Error", "Failed to open database!");
         return false;
     }
 
     QSqlQuery query;
-    query.prepare("INSERT INTO Members (Id, Name, sex, age, classname, coursedate, coursenum, coursename, coursetype, credit, courselauchtime) "
-                  "VALUES (:id, :name, :sex, :age, :classname, :coursedate, :coursenum, :coursename, :coursetype, :credit, :courselauchtime);");
+
+    // 插入成员信息到Members表
+    query.prepare("INSERT INTO Members (Id, Name, Sex, Age, Classname) "
+                  "VALUES (:id, :name, :sex, :age, :classname);");
 
     query.bindValue(":id", studentInfo.getId());
     query.bindValue(":name", studentInfo.getName());
     query.bindValue(":sex", studentInfo.getSex());
     query.bindValue(":age", studentInfo.getAge());
     query.bindValue(":classname", studentInfo.getClassname());
+
+    qDebug() << "SQL Query to be executed for Members table:" << query.executedQuery();
+
+    if (!query.exec()) {
+        qDebug() << "Error inserting into Members table:" << query.lastQuery();
+        return false;
+    }
+
+    // 直接使用cstudentinfo的成员变量进行绑定
+    query.prepare("INSERT INTO Attendance (StudentId, Coursedate, Coursenum, Coursename, Coursetype, Credit, Courselauchtime) "
+                  "VALUES (:studentId, :coursedate, :coursenum, :coursename, :coursetype, :credit, :courselauchtime);");
+
+    query.bindValue(":studentId", studentInfo.getId()); // 假设学生ID是相同的
     query.bindValue(":coursedate", studentInfo.getCoursedate());
     query.bindValue(":coursenum", studentInfo.getCoursenum());
     query.bindValue(":coursename", studentInfo.getCoursename());
@@ -97,17 +117,18 @@ bool csqlite::addStudentInfo(cstudentinfo studentInfo)
     query.bindValue(":credit", studentInfo.getCredit());
     query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
 
+    qDebug() << "SQL Query to be executed for Attendance table:" << query.executedQuery();
+
     if (!query.exec()) {
-        qDebug() << "Error adding student info:" << query.lastQuery();
-        m_db.close();
+        qDebug() << "Error inserting into Attendance table:" << query.lastQuery();
         return false;
     }
 
-    m_db.close();
     return true;
 }
 
-bool csqlite::editStudentInfo(cstudentinfo studentInfo)
+// 修改一条学生信息
+bool csqlite::updateStudentInfo(cstudentinfo studentInfo)
 {
     if (!m_db.open()) {
         QMessageBox::critical(0, "Error", "Failed to open database!");
@@ -115,33 +136,53 @@ bool csqlite::editStudentInfo(cstudentinfo studentInfo)
     }
 
     QSqlQuery query;
-    query.prepare("UPDATE Members SET Name = :name, sex = :sex, age = :age, classname = :classname, "
-                  "coursedate = :coursedate, coursenum = :coursenum, coursename = :coursename, "
-                  "coursetype = :coursetype, credit = :credit, courselauchtime = :courselauchtime WHERE Id = :id");
+
+    // 更新学生基本信息
+    query.prepare("UPDATE Members SET Name = :name, Sex = :sex, Age = :age, Classname = :classname "
+                  "WHERE Id = :id");
 
     query.bindValue(":id", studentInfo.getId());
     query.bindValue(":name", studentInfo.getName());
     query.bindValue(":sex", studentInfo.getSex());
     query.bindValue(":age", studentInfo.getAge());
     query.bindValue(":classname", studentInfo.getClassname());
-    query.bindValue(":coursedate", studentInfo.getCoursedate());
-    query.bindValue(":coursenum", studentInfo.getCoursenum());
-    query.bindValue(":coursename", studentInfo.getCoursename());
-    query.bindValue(":coursetype", studentInfo.getCoursetype());
-    query.bindValue(":credit", studentInfo.getCredit());
-    query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
 
     if (!query.exec()) {
-        qDebug() << "Error editing student info:" << query.lastQuery();
-        m_db.close();
+        qDebug() << "Error updating Members table:" << query.lastQuery();
         return false;
     }
 
-    m_db.close();
+    // 获取出勤信息列表并假设只有一条记录
+    QList<cattendanceinfo> attendanceInfos = studentInfo.getAttendanceInfos();
+    if (attendanceInfos.size() > 0) {
+        cattendanceinfo attendanceInfo = attendanceInfos.first();
+
+        // 更新考勤信息
+        query.prepare("UPDATE Attendance SET StudentId = :studentId, Coursedate = :coursedate, "
+                      "Coursenum = :coursenum, Coursename = :coursename, Coursetype = :coursetype, "
+                      "Credit = :credit, Courselauchtime = :courselauchtime "
+                      "WHERE AttendanceId = :attendanceId");
+
+        query.bindValue(":attendanceId", attendanceInfo.getAttendanceId());
+        query.bindValue(":studentId", attendanceInfo.getStudentId());
+        query.bindValue(":coursedate", attendanceInfo.getCoursedate());
+        query.bindValue(":coursenum", attendanceInfo.getCoursenum());
+        query.bindValue(":coursename", attendanceInfo.getCoursename());
+        query.bindValue(":coursetype", attendanceInfo.getCoursetype());
+        query.bindValue(":credit", attendanceInfo.getCredit());
+        query.bindValue(":courselauchtime", attendanceInfo.getCourselauchtime());
+
+        if (!query.exec()) {
+            qDebug() << "Error updating attendance record:" << query.lastQuery();
+            return false;
+        }
+    }
+
     return true;
 }
 
-bool csqlite::deletStudentInfo(int Id)
+// 删除指定考勤记录
+bool csqlite::deleteSpecificAttendanceRecord(int attendanceId)
 {
     if (!m_db.open()) {
         QMessageBox::critical(0, "Error", "Failed to open database!");
@@ -149,15 +190,182 @@ bool csqlite::deletStudentInfo(int Id)
     }
 
     QSqlQuery query;
-    query.prepare("DELETE FROM Members WHERE Id = :id");
-    query.bindValue(":id", Id);
+    // 只使用attendanceId作为WHERE子句的条件
+    query.prepare("DELETE FROM Attendance WHERE AttendanceId = :attendanceId");
+    query.bindValue(":attendanceId", attendanceId);
 
     if (!query.exec()) {
-        qDebug() << "Error deleting student info:" << query.lastQuery();
-        m_db.close();
+        qDebug() << "Error deleting specific attendance record:" << query.lastQuery();
         return false;
     }
 
-    m_db.close();
+    return true;
+}
+
+// 根据学号或姓名查询学生信息
+bool csqlite::queryStudentInfoByIdOrName(const QString &idCondition, const QString &nameCondition, QList<cstudentinfo> &result)
+{
+    qDebug()<<idCondition;
+    qDebug()<<nameCondition;
+    if (!m_db.isOpen() && !m_db.open()) {
+        qDebug() << "Failed to open database.";
+        return false;
+    }
+
+    QSqlQuery query(m_db);
+    QString sql;
+    if (!idCondition.isEmpty() && !nameCondition.isEmpty()) {
+        sql = QString("SELECT * FROM Members WHERE Id = '%1' AND Name = '%2';").arg(idCondition).arg(nameCondition);
+    } else if (!idCondition.isEmpty()) {
+        sql = QString("SELECT * FROM Members WHERE Id = '%1';").arg(idCondition);
+        qDebug()<<sql;
+    } else if (!nameCondition.isEmpty()) {
+        sql = QString("SELECT * FROM Members WHERE Name = '%1';").arg(nameCondition);
+    } else {
+        qDebug() << "Neither ID nor Name provided for query.";
+        return false;
+    }
+
+    bool hasResults = false;
+    while (query.next()) {
+        hasResults = true;
+        cstudentinfo stuInfo;
+        stuInfo.setId(query.value("Id").toInt());
+        stuInfo.setName(query.value("Name").toString());
+        stuInfo.setSex(query.value("Sex").toString());
+        stuInfo.setAge(query.value("Age").toInt());
+        stuInfo.setClassname(query.value("Classname").toString());
+
+        QSqlQuery attendanceQuery(m_db);
+        attendanceQuery.prepare("SELECT * FROM Attendance WHERE StudentId = ?");
+        attendanceQuery.bindValue(0, stuInfo.getId());
+        if (!attendanceQuery.exec()) {
+            qDebug() << "Failed to query attendance information: " << attendanceQuery.lastQuery();
+        }
+        while (attendanceQuery.next()) {
+            cattendanceinfo attendanceInfo;
+            attendanceInfo.setAttendanceId(attendanceQuery.value("AttendanceId").toInt());
+            attendanceInfo.setStudentId(attendanceQuery.value("StudentId").toInt());
+            attendanceInfo.setCoursedate(attendanceQuery.value("Coursedate").toString());
+            attendanceInfo.setCoursenum(attendanceQuery.value("Coursenum").toInt());
+            attendanceInfo.setCoursename(attendanceQuery.value("Coursename").toString());
+            attendanceInfo.setCoursetype(attendanceQuery.value("Coursetype").toString());
+            attendanceInfo.setCredit(attendanceQuery.value("Credit").toDouble());
+            attendanceInfo.setCourselauchtime(attendanceQuery.value("Courselauchtime").toString());
+
+            stuInfo.addAttendanceInfo(attendanceInfo);
+            qDebug()<<attendanceInfo.getCredit();
+        }
+
+        qDebug()<<stuInfo.getCourselauchtime();
+        result.append(stuInfo);
+    }
+    if (!hasResults) {
+        qDebug() << "No records found that match the query criteria.";
+    }
+
+    return true;
+}
+
+QSqlDatabase csqlite::getDb()
+{
+    if(!m_db.isOpen())
+    {
+        qDebug()<<"m_db is not open!";
+    }
+    return m_db;
+}
+
+void csqlite::setDb(const QSqlDatabase &db)
+{
+    m_db = db;
+}
+
+// 查询所有学生信息并返回为缓存格式的QList
+QList<cstudentinfo> csqlite::selectAllStudentInfo()
+{
+    QList<cstudentinfo> studentInfoList;
+
+    QSqlQuery query(m_db);
+    query.exec("SELECT * FROM Members");
+
+    while (query.next()) {
+        cstudentinfo stuInfo;
+        stuInfo.setId(query.value("Id").toInt());
+        stuInfo.setName(query.value("Name").toString());
+        stuInfo.setSex(query.value("sex").toString());
+        stuInfo.setAge(query.value("age").toInt());
+        stuInfo.setClassname(query.value("classname").toString());
+
+        // Query attendance information for the student and add it to the cstudentinfo object.
+        QSqlQuery attendanceQuery(m_db);
+        attendanceQuery.prepare("SELECT * FROM Attendance WHERE StudentId = ?");
+        attendanceQuery.addBindValue(stuInfo.getId());
+        attendanceQuery.exec();
+
+        while (attendanceQuery.next()) {
+            cattendanceinfo attendanceInfo;
+            attendanceInfo.setAttendanceId(attendanceQuery.value("AttendanceId").toInt());
+            attendanceInfo.setStudentId(attendanceQuery.value("StudentId").toInt());
+            attendanceInfo.setCoursedate(attendanceQuery.value("Coursedate").toString());
+            attendanceInfo.setCoursenum(attendanceQuery.value("Coursenum").toInt());
+            attendanceInfo.setCoursename(attendanceQuery.value("Coursename").toString());
+            attendanceInfo.setCoursetype(attendanceQuery.value("Coursetype").toString());
+            attendanceInfo.setCredit(attendanceQuery.value("Credit").toDouble());
+            attendanceInfo.setCourselauchtime(attendanceQuery.value("Courselauchtime").toString());
+
+            stuInfo.addAttendanceInfo(attendanceInfo);
+        }
+
+        studentInfoList.append(stuInfo);
+    }
+
+    return studentInfoList;
+}
+
+// 查询所有学生信息并返回为缓存格式的QList,使用bool型
+bool csqlite::queryAllStudentInfo(QList<cstudentinfo> &result)
+{
+    QSqlQuery query(m_db);
+    query.prepare("SELECT * FROM Members");
+    if (!query.exec())
+    {
+        qDebug() << "Failed to execute query: " << query.lastQuery();
+        return false;
+    }
+
+    while (query.next()) {
+        cstudentinfo stuInfo;
+        stuInfo.setId(query.value("id").toInt());
+        stuInfo.setName(query.value("name").toString());
+        stuInfo.setSex(query.value("sex").toString());
+        stuInfo.setAge(query.value("age").toInt());
+        stuInfo.setClassname(query.value("classname").toString());
+
+        QSqlQuery attendanceQuery(m_db);
+        attendanceQuery.prepare("SELECT * FROM Attendance WHERE StudentId = ?");
+        attendanceQuery.bindValue(0, stuInfo.getId());
+        if (!attendanceQuery.exec()) {
+            qDebug() << "Failed to execute attendance query: " << attendanceQuery.lastQuery();
+            return false;
+        }
+
+        while (attendanceQuery.next()) {
+            cattendanceinfo attendanceInfo;
+            attendanceInfo.setAttendanceId(attendanceQuery.value("AttendanceId").toInt());
+            attendanceInfo.setStudentId(attendanceQuery.value("StudentId").toInt());
+            attendanceInfo.setCoursedate(attendanceQuery.value("Coursedate").toString());
+            attendanceInfo.setCoursenum(attendanceQuery.value("Coursenum").toInt());
+            attendanceInfo.setCoursename(attendanceQuery.value("Coursename").toString());
+            attendanceInfo.setCoursetype(attendanceQuery.value("Coursetype").toString());
+            attendanceInfo.setCredit(attendanceQuery.value("Credit").toDouble());
+            attendanceInfo.setCourselauchtime(attendanceQuery.value("Courselauchtime").toString());
+
+            stuInfo.addAttendanceInfo(attendanceInfo);
+        }
+
+        result.append(stuInfo);
+    }
+
     return true;
 }

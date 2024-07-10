@@ -14,7 +14,7 @@
    <string>学生考勤管理系统</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="ico.qrc">
+   <iconset>
     <normaloff>:/new/prefix1/ico/mainwindow.ico</normaloff>:/new/prefix1/ico/mainwindow.ico</iconset>
   </property>
   <property name="autoFillBackground">
@@ -226,6 +226,7 @@
     <addaction name="action_E"/>
     <addaction name="action_Q"/>
     <addaction name="action_T"/>
+    <addaction name="action_Y"/>
    </widget>
    <widget class="QMenu" name="menu_E">
     <property name="title">
@@ -327,9 +328,15 @@
     <string>Ctrl+T</string>
    </property>
   </action>
+  <action name="action_Y">
+   <property name="text">
+    <string>显示(&amp;Y)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
  </widget>
- <resources>
-  <include location="ico.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

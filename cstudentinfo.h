@@ -1,12 +1,12 @@
-//此类为student成员类
-
+//此类为student成员
 #ifndef CSTUDENTINFO_H
 #define CSTUDENTINFO_H
 
 #include <QString>
+#include <QList>
+#include "cattendanceinfo.h"
 
-
-class cstudentinfo
+class cstudentinfo:public cattendanceinfo
 {
 public:
     cstudentinfo();
@@ -48,6 +48,15 @@ public:
     QString getCourselauchtime() const;
     void setCourselauchtime(const QString &value);
 
+    // 添加考勤信息
+    void addAttendanceInfo(const cattendanceinfo &attendanceInfo);
+
+    // 获取考勤信息列表
+    QList<cattendanceinfo> getAttendanceInfos() const;
+
+    // 设置考勤信息列表
+    void setAttendanceInfos(const QList<cattendanceinfo> &attendanceInfos);
+
 private:
     int Id;
     QString Name;
@@ -60,6 +69,9 @@ private:
     QString coursetype;
     double credit;
     QString courselauchtime;
+
+    // 存储考勤信息
+    QList<cattendanceinfo> attendanceInfos;
 };
 
 #endif // CSTUDENTINFO_H

@@ -18,9 +18,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     addstudentinfo.cpp \
     analyzestudentinfo.cpp \
+    cattendanceinfo.cpp \
     csqlite.cpp \
     cstudentinfo.cpp \
-    editstudentinfo.cpp \
     main.cpp \
     mainwindow.cpp \
     studentinfo.cpp
@@ -28,16 +28,15 @@ SOURCES += \
 HEADERS += \
     addstudentinfo.h \
     analyzestudentinfo.h \
+    cattendanceinfo.h \
     csqlite.h \
     cstudentinfo.h \
-    editstudentinfo.h \
     mainwindow.h \
     studentinfo.h
 
 FORMS += \
     addstudentinfo.ui \
     analyzestudentinfo.ui \
-    editstudentinfo.ui \
     mainwindow.ui
 
 TRANSLATIONS += \
