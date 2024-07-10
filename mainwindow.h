@@ -2,113 +2,84 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDebug>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QSqlQueryModel>
+#include <QMessageBox>
 #include <QStandardItemModel>
+#include <QListView>
+#include <QFile>
 #include <QFileDialog>
-#include <QApplication>
-#include <QStyleFactory>
-#include <QPalette>
-#include <QColor>
-#include <QSettings>
+#include <QKeyEvent>
 
-#include "csqlite.h"
+#include "optiondatabase.h"
 #include "addstudentinfo.h"
-#include "analyzestudentinfo.h"
-
-const int CONST_COLUMN_SIZE = 12;
-
-const int CONST_COL_ATTENDANCEID = 0;
-const int CONST_COL_ID = 1;
-const int CONST_COL_NAME = 2;
-const int CONST_COL_SEX = 3;
-const int CONST_COL_AGE = 4;
-const int CONST_COL_CLASSNAME = 5;
-const int CONST_COL_COURSEDATE = 6;
-const int CONST_COL_COURSENUM = 7;
-const int CONST_COL_COURSENAME = 8;
-const int CONST_COL_COURSETYPE = 9;
-const int CONST_COL_CREDIT = 10;
-const int CONST_COL_COURSELAUNCHTIME = 11;
+#include "ui_addstudentinfo.h"
+#include "editstudentinfo.h"
 
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public optionDatabase
 {
     Q_OBJECT
 
 public:
     MainWindow(QWidget *parent = nullptr);
-
     ~MainWindow();
-
-    bool appendTomodel(cstudentinfo &studentinfo);
-
-    void switchTheme(bool isDarkMode);
-
-    bool isDarkModeEnabled();
-
-    void fillTableView();
-
-    bool saveDataToDatabase(QSqlDatabase &db);
-
-    void savePendingChangesToDatabase();
+    bool selectstuInfos(QList<studentInfo> &stuInfosList) override;
+    bool addstuInfos(studentInfo &stuInfos) override;
+    bool delstuInfos(int Id) override;
+    bool editstuInfos(studentInfo &stuInfos) override;
+    void queryAndDisplayWithCondition(const QString &condition);
+    void queryAndDisplay();
+    void displayStudentRecord(const QSqlQuery &sqlquery);
+    void insertStudentToDatabase(const studentInfo &stuInfos);
+    void populateStandardModel(QStandardItemModel* model, const QList<studentInfo>& stuInfosList);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
-    void on_pushButton_add_clicked();
-
-    void on_pushButton_del_clicked();
-
-    void on_pushButton_edit_clicked();
-
     void on_pushButton_query_clicked();
 
-    void on_action_O_triggered();
+    void on_action_Globalshow_triggered();
+
+    void on_pushButton_add_clicked();
 
     void on_action_N_triggered();
 
     void on_action_S_triggered();
 
-    void on_action_triggered();
+    void on_action_Save_triggered();
 
-    void on_action_R_triggered();
+    void on_action_Query_triggered();
 
-    void on_action_I_triggered();
+    void on_action_Open_triggered();
 
-    void on_action_E_triggered();
+    void on_action_TotalAnalize_triggered();
 
-    void on_action_Q_triggered();
+    void on_action_Insert_triggered();
 
-    void on_action_2_triggered();
+    void on_action_Delete_triggered();
 
-    void on_action_3_triggered();
+    void on_pushButton_del_clicked();
 
-    void on_action_4_triggered();
+    void onStudentAdded(const studentInfo& newstudent);
 
-    void on_action_T_triggered();
+    void onStudentEdited(const studentInfo& editedStudent);
 
-    void on_action_Y_triggered();
-
-    bool slot_addStuInfo(cstudentinfo &stuInfo);
-
-    bool slot_editStuInfo(cstudentinfo &stuInfo);
-
-    bool slot_updateStuInfo(cstudentinfo &stuInfo);
-
-
-signals:
-    void checkBoxStateChanged(int row, Qt::CheckState state);
+    void on_pushButton_edit_clicked();
 
 private:
-    void initUI();
+    void initui();
 
 private:
     Ui::MainWindow *ui;
-    csqlite *m_database;
-    QStandardItemModel *m_standarditemmodel;
-    addstudentinfo *m_addstudentinfo;
-    QList<cstudentinfo> m_pendingStudentInfoList;
-    cstudentinfo m_pendingCstudentinfo;
+    QSqlQueryModel sqlmodel;
+    editstudentinfo *editStudentInfoDialog;
+
 };
 #endif // MAINWINDOW_H
