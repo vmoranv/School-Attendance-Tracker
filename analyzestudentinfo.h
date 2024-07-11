@@ -5,6 +5,7 @@
 #include <QStandardItemModel>
 #include <QList>
 #include <QTimer>
+#include <QStyledItemDelegate>
 
 #include "cstudentinfo.h"
 
@@ -33,6 +34,8 @@ public:
     QList<cstudentinfo> passedStudentInfoList() const;
 
     void setPassedStudentInfoList(const QList<cstudentinfo> &passedStudentInfoList);
+
+    void setTheme(bool isDarkMode);
 
 private slots:
 

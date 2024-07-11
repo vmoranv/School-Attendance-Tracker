@@ -76,7 +76,7 @@ bool csqlite::selectStudentInfo(QList<cstudentinfo> &studentinfolist)
     return true;
 }
 
-//添加单挑学生信息
+// 添加单条学生信息
 bool csqlite::addStudentInfo(cstudentinfo studentInfo)
 {
     qDebug() << "Adding student info:" << studentInfo.getId();
@@ -88,48 +88,63 @@ bool csqlite::addStudentInfo(cstudentinfo studentInfo)
 
     QSqlQuery query;
 
-    // 插入成员信息到Members表
-    query.prepare("INSERT INTO Members (Id, Name, Sex, Age, Classname) "
-                  "VALUES (:id, :name, :sex, :age, :classname);");
-
+    // 检查学生是否已存在
+    query.prepare("SELECT COUNT(*) FROM Members WHERE Id = :id;");
     query.bindValue(":id", studentInfo.getId());
-    query.bindValue(":name", studentInfo.getName());
-    query.bindValue(":sex", studentInfo.getSex());
-    query.bindValue(":age", studentInfo.getAge());
-    query.bindValue(":classname", studentInfo.getClassname());
-
-    qDebug() << "SQL Query to be executed for Members table:" << query.executedQuery();
-
-    if (!query.exec()) {
-        qDebug() << "Error inserting into Members table:" << query.lastQuery();
+    if (!query.exec() || !query.next()) {
+        qDebug() << "Error checking existing student:" << query.lastQuery();
         return false;
     }
+    int count = query.value(0).toInt();
 
-    // 直接使用cstudentinfo的成员变量进行绑定
-    query.prepare("INSERT INTO Attendance (StudentId, Coursedate, Coursenum, Coursename, Coursetype, Credit, Courselauchtime) "
-                  "VALUES (:studentId, :coursedate, :coursenum, :coursename, :coursetype, :credit, :courselauchtime);");
+    bool studentExists = (count > 0);
+    if (!studentExists) {
+        // 插入成员信息到Members表
+        query.prepare("INSERT INTO Members (Id, Name, Sex, Age, Classname) "
+                      "VALUES (:id, :name, :sex, :age, :classname);");
 
-    query.bindValue(":studentId", studentInfo.getId()); // 假设学生ID是相同的
-    query.bindValue(":coursedate", studentInfo.getCoursedate());
-    query.bindValue(":coursenum", studentInfo.getCoursenum());
-    query.bindValue(":coursename", studentInfo.getCoursename());
-    query.bindValue(":coursetype", studentInfo.getCoursetype());
-    query.bindValue(":credit", studentInfo.getCredit());
-    query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
+        query.bindValue(":id", studentInfo.getId());
+        query.bindValue(":name", studentInfo.getName());
+        query.bindValue(":sex", studentInfo.getSex());
+        query.bindValue(":age", studentInfo.getAge());
+        query.bindValue(":classname", studentInfo.getClassname());
 
-    qDebug() << "SQL Query to be executed for Attendance table:" << query.executedQuery();
+        qDebug() << "SQL Query to be executed for Members table:" << query.executedQuery();
 
-    if (!query.exec()) {
-        qDebug() << "Error inserting into Attendance table:" << query.lastQuery();
-        return false;
+        if (!query.exec()) {
+            qDebug() << "Error inserting into Members table:" << query.lastQuery();
+            return false;
+        }
+    }
+
+    // 处理出勤信息
+    if (studentInfo.getCoursedate()!="0") {
+        query.prepare("INSERT INTO Attendance (StudentId, Coursedate, Coursenum, Coursename, Coursetype, Credit, Courselauchtime) "
+                      "VALUES (:studentId, :coursedate, :coursenum, :coursename, :coursetype, :credit, :courselauchtime);");
+
+        qDebug()<<studentInfo.getId();
+        query.bindValue(":studentId", studentInfo.getId());
+        query.bindValue(":coursedate", studentInfo.getCoursedate());
+        query.bindValue(":coursenum", studentInfo.getCoursenum());
+        query.bindValue(":coursename", studentInfo.getCoursename());
+        query.bindValue(":coursetype", studentInfo.getCoursetype());
+        query.bindValue(":credit", studentInfo.getCredit());
+        query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
+
+        if (!query.exec()) {
+            qDebug() << "Error inserting into Attendance table:" << query.lastQuery();
+            return false;
+        }
     }
 
     return true;
 }
 
-// 修改一条学生信息
 bool csqlite::updateStudentInfo(cstudentinfo studentInfo)
 {
+    qDebug()<<"Updating student info and specific attendance record:"<< studentInfo.getId()<<studentInfo.getAttendanceId();
+
+
     if (!m_db.open()) {
         QMessageBox::critical(0, "Error", "Failed to open database!");
         return false;
@@ -151,31 +166,32 @@ bool csqlite::updateStudentInfo(cstudentinfo studentInfo)
         qDebug() << "Error updating Members table:" << query.lastQuery();
         return false;
     }
+    qDebug()<<"Success updating Members table" << query.lastQuery();
 
-    // 获取出勤信息列表并假设只有一条记录
-    QList<cattendanceinfo> attendanceInfos = studentInfo.getAttendanceInfos();
-    if (attendanceInfos.size() > 0) {
-        cattendanceinfo attendanceInfo = attendanceInfos.first();
+    qDebug()<<studentInfo.getAttendanceId()<<studentInfo.getCoursedate();
 
+    if (studentInfo.getAttendanceId() != 0) {
         // 更新考勤信息
         query.prepare("UPDATE Attendance SET StudentId = :studentId, Coursedate = :coursedate, "
                       "Coursenum = :coursenum, Coursename = :coursename, Coursetype = :coursetype, "
                       "Credit = :credit, Courselauchtime = :courselauchtime "
                       "WHERE AttendanceId = :attendanceId");
 
-        query.bindValue(":attendanceId", attendanceInfo.getAttendanceId());
-        query.bindValue(":studentId", attendanceInfo.getStudentId());
-        query.bindValue(":coursedate", attendanceInfo.getCoursedate());
-        query.bindValue(":coursenum", attendanceInfo.getCoursenum());
-        query.bindValue(":coursename", attendanceInfo.getCoursename());
-        query.bindValue(":coursetype", attendanceInfo.getCoursetype());
-        query.bindValue(":credit", attendanceInfo.getCredit());
-        query.bindValue(":courselauchtime", attendanceInfo.getCourselauchtime());
+        query.bindValue(":attendanceId", studentInfo.getAttendanceId());
+        query.bindValue(":studentId", studentInfo.getId());
+        query.bindValue(":coursedate", studentInfo.getCoursedate());
+        query.bindValue(":coursenum", studentInfo.getCoursenum());
+        query.bindValue(":coursename", studentInfo.getCoursename());
+        query.bindValue(":coursetype", studentInfo.getCoursetype());
+        query.bindValue(":credit", studentInfo.getCredit());
+        query.bindValue(":courselauchtime", studentInfo.getCourselauchtime());
 
+        qDebug()<<query.lastQuery();
         if (!query.exec()) {
-            qDebug() << "Error updating attendance record:" << query.lastQuery();
+            qDebug() << "Error updating Attendance table:" << query.lastQuery();
             return false;
         }
+        qDebug()<<"Success updating Attendance table for attendance ID:" << studentInfo.getAttendanceId();
     }
 
     return true;
@@ -226,6 +242,8 @@ bool csqlite::queryStudentInfoByIdOrName(const QString &idCondition, const QStri
         return false;
     }
 
+    qDebug()<< query.exec(sql);
+
     bool hasResults = false;
     while (query.next()) {
         hasResults = true;
@@ -239,13 +257,13 @@ bool csqlite::queryStudentInfoByIdOrName(const QString &idCondition, const QStri
         QSqlQuery attendanceQuery(m_db);
         attendanceQuery.prepare("SELECT * FROM Attendance WHERE StudentId = ?");
         attendanceQuery.bindValue(0, stuInfo.getId());
+        qDebug()<<attendanceQuery.lastQuery();
         if (!attendanceQuery.exec()) {
             qDebug() << "Failed to query attendance information: " << attendanceQuery.lastQuery();
         }
         while (attendanceQuery.next()) {
             cattendanceinfo attendanceInfo;
             attendanceInfo.setAttendanceId(attendanceQuery.value("AttendanceId").toInt());
-            attendanceInfo.setStudentId(attendanceQuery.value("StudentId").toInt());
             attendanceInfo.setCoursedate(attendanceQuery.value("Coursedate").toString());
             attendanceInfo.setCoursenum(attendanceQuery.value("Coursenum").toInt());
             attendanceInfo.setCoursename(attendanceQuery.value("Coursename").toString());

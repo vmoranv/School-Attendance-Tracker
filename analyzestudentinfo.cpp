@@ -62,6 +62,30 @@ void analyzestudentinfo::setPassedStudentInfoList(const QList<cstudentinfo> &pas
     m_passedStudentInfoList = passedStudentInfoList;
 }
 
+void analyzestudentinfo::setTheme(bool isDarkMode)
+{
+
+    if (!isDarkMode) {
+        this->setStyleSheet("QWidget { background-color: black; color: white; } ");
+        ui->tableView->horizontalHeader()->setStyleSheet("QHeaderView::section { background-color: #333; color: white; }");
+        ui->tableView->setStyleSheet("QTableView { background-color: #333; color: white; }");
+        ui->lineEdit->setStyleSheet("QLineEdit { background-color: #333; color: white; }");
+        ui->comboBox->setStyleSheet("QComboBox { background-color: #333; color: white; }");
+        ui->comboBox_2->setStyleSheet("QComboBox { background-color: #333; color: white; }");
+        ui->lineEdit_2->setStyleSheet("QLineEdit { background-color: #333; color: white; }");
+        ui->pushButton->setStyleSheet("QPushButton { background-color: #555; color: white; }");
+    } else {
+        this->setStyleSheet("QWidget { background-color: white; color: black; } ");
+        ui->tableView->horizontalHeader()->setStyleSheet("QHeaderView::section { background-color: #DDD; color: black; }");
+        ui->tableView->setStyleSheet("QTableView { background-color: white; color: black; }");
+        ui->lineEdit->setStyleSheet("QLineEdit { background-color: white; color: black; border: 1px solid #CCC; }");
+        ui->comboBox->setStyleSheet("QComboBox { background-color: white; color: black; border: 1px solid #AAA; }");
+        ui->comboBox_2->setStyleSheet("QComboBox { background-color: white; color: black; border: 1px solid #AAA; }");
+        ui->lineEdit_2->setStyleSheet("QLineEdit { background-color: white; color: black; border: 1px solid #CCC; }");
+        ui->pushButton->setStyleSheet("QPushButton { background-color: #EEE; color: black; border: 1px solid #AAA; }");
+    }
+}
+
 void analyzestudentinfo::initUI()
 {
     QStringList headerList;
@@ -89,52 +113,109 @@ void analyzestudentinfo::on_pushButton_clicked()
         {"缺课类型", "coursetype"},
     };
 
-    QString field = ui->comboBox->currentText();
-    QString value = ui->lineEdit->text();
-    if (field.isEmpty() || value.isEmpty()) {
-        fillTableView(m_passedStudentInfoList);
-        return;
-    }
+    // 获取第一个查询字段和值
+    QString field1 = ui->comboBox->currentText();
+    QString value1 = ui->lineEdit->text();
+    QString fieldEng1 = fieldNameMap[field1];
 
-    QString fieldEng = fieldNameMap[field];
+    // 获取第二个查询字段和值
+    QString field2 = ui->comboBox_2->currentText();
+    QString value2 = ui->lineEdit_2->text();
+    QString fieldEng2 = fieldNameMap[field2];
+
+    // 清空tableView
     int rowCount = m_standarditemmodel->rowCount();
     if (rowCount > 0)
     {
         m_standarditemmodel->removeRows(0, rowCount);
     }
 
-    for (auto &stuInfo : m_passedStudentInfoList)
-    {
-        if(fieldEng == "attendanceId" && stuInfo.getAttendanceId() == value.toInt())
+    if (!value1.isEmpty() && !value2.isEmpty()) {
+        // 两个输入都有值，进行复合查询
+        for (auto &stuInfo : m_passedStudentInfoList)
         {
-            appendTomodel(stuInfo);
-        }
-        else if (fieldEng == "Id" && stuInfo.getId() == value.toInt())
-        {
-            appendTomodel(stuInfo);
+            bool matchField1 = false;
+            bool matchField2 = false;
 
-        } else if (fieldEng == "Name" && stuInfo.getName() == value)
-        {
-            appendTomodel(stuInfo);
-        } else if (fieldEng == "age" && stuInfo.getAge() == value.toInt())
-        {
-            appendTomodel(stuInfo);
-        } else if (fieldEng == "classname" && stuInfo.getClassname() == value)
-        {
-            appendTomodel(stuInfo);
-        } else if (fieldEng == "coursedate" && stuInfo.getCoursedate() == value)
-        {
-            appendTomodel(stuInfo);
-        } else if (fieldEng == "coursenum" && stuInfo.getCoursenum() == value.toInt())
-        {
-            appendTomodel(stuInfo);
-        } else if (fieldEng == "coursename" && stuInfo.getCoursename() == value)
-        {
-            appendTomodel(stuInfo);
-        } else if (fieldEng == "coursetype" && stuInfo.getCoursetype() == value)
-        {
-            appendTomodel(stuInfo);
+            // 检查fieldEng1
+            if (fieldEng1 == "Id" && stuInfo.getId() == value1.toInt()) {
+                matchField1 = true;
+            } else if (fieldEng1 == "Name" && stuInfo.getName() == value1) {
+                matchField1 = true;
+            } else if (fieldEng1 == "age" && stuInfo.getAge() == value1.toInt()) {
+                matchField1 = true;
+            } else if (fieldEng1 == "classname" && stuInfo.getClassname() == value1) {
+                matchField1 = true;
+            } else if (fieldEng1 == "coursedate" && stuInfo.getCoursedate() == value1) {
+                matchField1 = true;
+            } else if (fieldEng1 == "coursenum" && stuInfo.getCoursenum() == value1.toInt()) {
+                matchField1 = true;
+            } else if (fieldEng1 == "coursename" && stuInfo.getCoursename() == value1) {
+                matchField1 = true;
+            } else if (fieldEng1 == "coursetype" && stuInfo.getCoursetype() == value1) {
+                matchField1 = true;
+            }
+
+            // 检查fieldEng2
+            if (fieldEng2 == "attendanceId" && stuInfo.getAttendanceId() == value2.toInt()) {
+                matchField2 = true;
+            } else if (fieldEng2 == "coursedate" && stuInfo.getCoursedate() == value2) {
+                matchField2 = true;
+            } else if (fieldEng2 == "coursenum" && stuInfo.getCoursenum() == value2.toInt()) {
+                matchField2 = true;
+            } else if (fieldEng2 == "coursename" && stuInfo.getCoursename() == value2) {
+                matchField2 = true;
+            } else if (fieldEng2 == "coursetype" && stuInfo.getCoursetype() == value2) {
+                matchField2 = true;
+            }
+
+            // 如果同时满足两个条件，则添加到模型中
+            if (matchField1 && matchField2) {
+                appendTomodel(stuInfo);
+            }
         }
+    } else if (!value1.isEmpty()) {
+        // 只有第一个输入有值
+        for (auto &stuInfo : m_passedStudentInfoList)
+        {
+            if (fieldEng1 == "Id" && stuInfo.getId() == value1.toInt()) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "Name" && stuInfo.getName() == value1) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "age" && stuInfo.getAge() == value1.toInt()) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "classname" && stuInfo.getClassname() == value1) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "coursedate" && stuInfo.getCoursedate() == value1) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "coursenum" && stuInfo.getCoursenum() == value1.toInt()) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "coursename" && stuInfo.getCoursename() == value1) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng1 == "coursetype" && stuInfo.getCoursetype() == value1) {
+                appendTomodel(stuInfo);
+            }
+        }
+    } else if (!value2.isEmpty()) {
+        // 只有第二个输入有值
+        for (auto &stuInfo : m_passedStudentInfoList)
+        {
+            if (fieldEng2 == "attendanceId" && stuInfo.getAttendanceId() == value2.toInt()) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng2 == "coursedate" && stuInfo.getCoursedate() == value2) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng2 == "coursenum" && stuInfo.getCoursenum() == value2.toInt()) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng2 == "coursename" && stuInfo.getCoursename() == value2) {
+                appendTomodel(stuInfo);
+            } else if (fieldEng2 == "coursetype" && stuInfo.getCoursetype() == value2) {
+                appendTomodel(stuInfo);
+            }
+        }
+    } else {
+        // 两个输入都没有值，显示所有数据
+        fillTableView(m_passedStudentInfoList);
     }
+
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }

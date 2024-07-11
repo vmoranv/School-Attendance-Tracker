@@ -57,6 +57,9 @@ public:
     // 设置考勤信息列表
     void setAttendanceInfos(const QList<cattendanceinfo> &attendanceInfos);
 
+    //获取特定考勤信息表
+    cattendanceinfo getSpecificAttendanceInfo(int attendanceId) const;
+
 private:
     int Id;
     QString Name;

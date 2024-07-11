@@ -34,6 +34,7 @@ public:
 
     void setCourselauchtime(const QString &value);
 
+
 private:
     int attendanceId;
     int studentId;

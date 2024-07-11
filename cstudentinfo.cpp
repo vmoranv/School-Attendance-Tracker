@@ -143,3 +143,12 @@ QList<cattendanceinfo> cstudentinfo::getAttendanceInfos() const {
 void cstudentinfo::setAttendanceInfos(const QList<cattendanceinfo> &attendanceInfos) {
     this->attendanceInfos = attendanceInfos;
 }
+
+cattendanceinfo cstudentinfo::getSpecificAttendanceInfo(int attendanceId) const {
+    for (const auto& attendanceInfo : attendanceInfos) {
+        if (attendanceInfo.getAttendanceId() == attendanceId) {
+            return attendanceInfo;
+        }
+    }
+    return cattendanceinfo();
+}

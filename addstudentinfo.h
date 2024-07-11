@@ -2,33 +2,50 @@
 #define ADDSTUDENTINFO_H
 
 #include <QDialog>
-#include <QDebug>
-#include <studentInfo.h>
 #include <QMessageBox>
-#include <QStandardItemModel>
-#include <QListView>
 
+#include "cstudentinfo.h"
+#include "csqlite.h"
 
 namespace Ui {
-class addStudentInfo;
+class addstudentinfo;
 }
 
-class addStudentInfo : public QDialog,public studentInfo
+class MainWindow;
+
+class addstudentinfo : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit addStudentInfo(QWidget *parent = nullptr);
-    ~addStudentInfo();
-    Ui::addStudentInfo *ui;
-
-signals:
-    void studentAdded(const studentInfo&);
+    explicit addstudentinfo(QWidget *parent = nullptr);
+    ~addstudentinfo();
 
 private slots:
-    void on_buttonBox_accepted();
+    void on_pushButton_accept_clicked();
 
-    void on_buttonBox_rejected();
+    void on_pushButton_cancel_clicked();
+
+
+public:
+    void initUI();
+
+    void setEditMode(bool isEditMode, const cstudentinfo& studentInfo);
+
+    MainWindow *mainwin;
+
+    void setTheme(bool isDarkMode);
+
+signals:
+    void sig_addStuInfo(cstudentinfo& studentInfo);
+
+    void sig_updateStuInfo(cstudentinfo& stuInfo);
+
+    void sig_editStuInfo(cstudentinfo& studentinfo);
+
+private:
+    Ui::addstudentinfo *ui;
+    bool m_isEditMode;
 };
 
 #endif // ADDSTUDENTINFO_H
